@@ -210,33 +210,71 @@ function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="site-footer">
-      <div className="footer-top">
-        <div className="footer-heading">
-          <h2>Let's build something remarkable together.</h2>
-          <p>I'm currently looking for new opportunities and software engineering internships.</p>
+    <footer className="site-footer" id="contact">
+      <div className="footer-container">
+        {/* TOP CTA SECTION */}
+        <div className="footer-cta-card">
+          <div className="cta-content">
+            <span className="cta-tag">Let's Connect</span>
+            <h2 className="cta-title">Interested in collaborating or hiring?</h2>
+            <p className="cta-desc">
+              I am currently open to software engineering internships and project management roles. Feel free to reach out!
+            </p>
+          </div>
+          <div className="cta-actions">
+            <a href={`mailto:${CONTACT.email}`} className="btn-primary cta-btn">
+              <Mail size={18} /> Send an Email
+            </a>
+          </div>
         </div>
-        <a href={`mailto:${CONTACT.email}`} className="btn-primary btn-large">
-          <Mail size={18} /> Send an Email
-        </a>
-      </div>
 
-      <div className="footer-divider" />
+        {/* MIDDLE LINKS & INFO */}
+        <div className="footer-nav-grid">
+          <div className="footer-brand">
+            <div className="nav-logo">
+              <span className="dot" />
+              <span className="name">{PROFILE.fullName}</span>
+            </div>
+            <p className="brand-bio">
+              Computer Science &amp; IT Student building full-stack web applications with integrated computer vision solutions.
+            </p>
+          </div>
 
-      <div className="footer-bottom">
-        <div className="copyright">
-          © {currentYear} {PROFILE.fullName}. Designed & Built with React.
+          <div className="footer-links-col">
+            <h4 className="col-title">Navigation</h4>
+            <ul>
+              <li><a href="#about">About</a></li>
+              <li><a href="#skills">Skills &amp; Tools</a></li>
+              <li><a href="#work">Featured Projects</a></li>
+            </ul>
+          </div>
+
+          <div className="footer-links-col">
+            <h4 className="col-title">Socials</h4>
+            <ul>
+              <li>
+                <a href={CONTACT.github} target="_blank" rel="noreferrer">
+                  <Github size={15} /> GitHub <ArrowUpRight size={14} />
+                </a>
+              </li>
+              <li>
+                <a href={CONTACT.linkedin} target="_blank" rel="noreferrer">
+                  <Linkedin size={15} /> LinkedIn <ArrowUpRight size={14} />
+                </a>
+              </li>
+              <li>
+                <a href={`mailto:${CONTACT.email}`}>
+                  <Mail size={15} /> Direct Email <ArrowUpRight size={14} />
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div className="social-links">
-          <a href={`mailto:${CONTACT.email}`} aria-label="Email">
-            <Mail size={18} />
-          </a>
-          <a href={CONTACT.github} target="_blank" rel="noreferrer" aria-label="GitHub">
-            <Github size={18} />
-          </a>
-          <a href={CONTACT.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
-            <Linkedin size={18} />
-          </a>
+
+        {/* BOTTOM COPYRIGHT BAR */}
+        <div className="footer-bottom">
+          <p>© {currentYear} {PROFILE.fullName}. All rights reserved.</p>
+          <p className="credit">Designed &amp; Developed by {PROFILE.name}</p>
         </div>
       </div>
     </footer>
@@ -631,6 +669,149 @@ export default function App() {
   padding: 0.6rem 1.25rem;
   font-size: 0.9rem;
   white-space: nowrap;
+}
+
+/* --- FOOTER STYLES --- */
+.site-footer {
+  margin-top: 6rem;
+  padding: 4rem 0 2rem;
+  background-color: #080d1a;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* TOP CTA CARD */
+.footer-cta-card {
+  background: linear-gradient(135deg, #12192c 0%, #17223b 100%);
+  border: 1px solid rgba(100, 223, 223, 0.2);
+  border-radius: 20px;
+  padding: 3.5rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 5rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.cta-tag {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64dfdf;
+  margin-bottom: 0.5rem;
+}
+
+.cta-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+}
+
+.cta-desc {
+  color: #94a3b8;
+  font-size: 1rem;
+  max-width: 580px;
+  line-height: 1.6;
+}
+
+.cta-btn {
+  white-space: nowrap;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  box-shadow: 0 4px 20px rgba(100, 223, 223, 0.25);
+}
+
+/* MIDDLE NAVIGATION GRID */
+.footer-nav-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 3rem;
+  padding-bottom: 3.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-bio {
+  color: #94a3b8;
+  font-size: 0.92rem;
+  margin-top: 1rem;
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+.col-title {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.footer-links-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.footer-links-col a {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-links-col a:hover {
+  color: #64dfdf;
+  transform: translateX(3px);
+}
+
+/* BOTTOM COPYRIGHT BAR */
+.footer-bottom {
+  padding-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.credit {
+  color: #94a3b8;
+}
+
+/* RESPONSIVE DESIGN FOR MOBILE */
+@media (max-width: 850px) {
+  .footer-cta-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 2.5rem 1.75rem;
+  }
+  
+  .footer-nav-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
 }
 
 
