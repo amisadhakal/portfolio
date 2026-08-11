@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import { Mail, Github, Linkedin, ArrowUpRight } from "lucide-react";
+import React from "react";
+import { Mail, Github, Linkedin, ExternalLink, ArrowUpRight } from "lucide-react";
 
 /* ----------------------------------------------------------------------
-   DATA — edit this section with your real details / links
+   DATA — Updated with your personal info
 ---------------------------------------------------------------------- */
 
 const CONTACT = {
@@ -15,587 +15,470 @@ const PROJECTS = [
   {
     title: "Drape",
     subtitle: "Virtual Try-On System",
-    role: "Lead Developer & Project Coordinator",
+    role: "Lead Developer & Coordinator",
     description:
-      "Planned and built a full-stack virtual try-on app from concept to shipped product. MediaPipe and OpenCV handle body-landmark detection and garment alignment, with a React front end and a Flask API behind it.",
-    tech: ["React (Vite)", "Flask", "MongoDB", "MediaPipe", "OpenCV", "Tailwind CSS"],
+      "A full-stack virtual try-on app. Uses MediaPipe and OpenCV for landmark detection and garment alignment, powered by React and Flask.",
+    tech: ["React", "Flask", "MongoDB", "MediaPipe", "OpenCV"],
     codeUrl: CONTACT.github,
-    liveUrl: null, // add your deployed URL here, e.g. "https://drape-app.vercel.app"
+    liveUrl: null,
   },
   {
     title: "Care Path",
-    subtitle: "Healthcare Appointment Booking System",
+    subtitle: "Healthcare Booking System",
     role: "Frontend Developer",
     description:
-      "Built the client for a healthcare booking product — a reusable component architecture, mobile-first layouts, and REST API integration end to end.",
-    tech: ["React.js", "JavaScript (ES6+)", "Tailwind CSS", "REST APIs"],
+      "Client app for healthcare appointment booking featuring reusable component architecture, mobile-first design, and REST integration.",
+    tech: ["React.js", "JavaScript", "Tailwind CSS", "REST API"],
     codeUrl: CONTACT.github,
     liveUrl: null,
   },
 ];
 
-const PROCESS_SKILLS = [
-  "Project Planning & Coordination",
-  "Task Prioritization",
-  "Software Development Lifecycle",
-  "Requirement Analysis",
-  "Project Documentation",
-  "Time Management",
-  "Risk Identification",
+const SKILLS_CLOUD = [
+  "React.js", "JavaScript", "Flask", "Python", "MongoDB", 
+  "Tailwind CSS", "HTML5/CSS3", "Git & GitHub", "MediaPipe", 
+  "OpenCV", "REST APIs", "Postman", "SDLC"
 ];
 
-const TECH_SKILLS = [
-  "React.js",
-  "JavaScript (ES6+)",
-  "HTML5 / CSS3",
-  "Tailwind CSS",
-  "Python",
-  "Git & GitHub",
-  "Flask",
-  "MongoDB",
-  "Postman",
-  "Jupyter Notebook",
-];
-
-const EDUCATION = {
-  degree: "B.Sc. in Computer Science and Information Technology",
-  school: "Asian School of Management and Technology (ASMT)",
-  years: "2023 – 2027",
-};
-
-/* ----------------------------------------------------------------------
-   LANDMARK MESH — a self-portrait built the way Drape "sees" a body:
-   points + connections, drifting gently, tilting toward the cursor.
----------------------------------------------------------------------- */
-
-const VIEW_W = 260;
-const VIEW_H = 320;
-
-// Rough bust silhouette (head, neck, shoulders), clockwise.
-const SILHOUETTE = [
-  [130, 30], [150, 33], [166, 42], [176, 58], [180, 78], [176, 98],
-  [166, 114], [156, 122], [170, 132], [206, 152], [234, 190], [246, 236],
-  [248, 300], [12, 300], [14, 236], [26, 190], [54, 152], [90, 132],
-  [104, 122], [94, 114], [84, 98], [80, 78], [84, 58], [94, 42], [110, 33],
-];
-
-function pointInPolygon(x, y, poly) {
-  let inside = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [xi, yi] = poly[i];
-    const [xj, yj] = poly[j];
-    const intersects =
-      yi > y !== yj > y &&
-      x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-    if (intersects) inside = !inside;
+const SERVICES = [
+  {
+    title: "Full-Stack Development",
+    description: "Building responsive web applications end-to-end with React, Flask, and RESTful APIs."
+  },
+  {
+    title: "Computer Vision Integration",
+    description: "Incorporating landmark detection, image processing, and AI tools into interactive frontends."
+  },
+  {
+    title: "Project Coordination & Planning",
+    description: "Structuring requirement analysis, workflow tracking, risk assessment, and technical documentation."
   }
-  return inside;
-}
-
-function buildMesh(seedKeyIndices = [0, 3, 12, 13, 17, 20]) {
-  const nodes = [];
-
-  // Outline points anchor the shape.
-  SILHOUETTE.forEach(([x, y]) => {
-    nodes.push({ baseX: x, baseY: y });
-  });
-
-  // Scatter interior points via rejection sampling.
-  let attempts = 0;
-  while (nodes.length < SILHOUETTE.length + 42 && attempts < 4000) {
-    attempts++;
-    const x = 10 + Math.random() * (VIEW_W - 20);
-    const y = 34 + Math.random() * (VIEW_H - 44);
-    if (pointInPolygon(x, y, SILHOUETTE)) {
-      nodes.push({ baseX: x, baseY: y });
-    }
-  }
-
-  nodes.forEach((n, i) => {
-    n.phaseX = Math.random() * Math.PI * 2;
-    n.phaseY = Math.random() * Math.PI * 2;
-    n.amp = 1.4 + Math.random() * 2.2;
-    n.speed = 0.35 + Math.random() * 0.4;
-    n.isKey = seedKeyIndices.includes(i);
-  });
-
-  // Connect each node to its nearest few neighbors.
-  const edgeSet = new Map();
-  const maxDist = 34;
-  nodes.forEach((a, i) => {
-    const dists = [];
-    nodes.forEach((b, j) => {
-      if (i === j) return;
-      const d = Math.hypot(a.baseX - b.baseX, a.baseY - b.baseY);
-      if (d < maxDist) dists.push([d, j]);
-    });
-    dists.sort((p, q) => p[0] - q[0]);
-    dists.slice(0, 2).forEach(([, j]) => {
-      const key = i < j ? `${i}-${j}` : `${j}-${i}`;
-      if (!edgeSet.has(key)) edgeSet.set(key, [i, j]);
-    });
-  });
-
-  return { nodes, edges: Array.from(edgeSet.values()) };
-}
-
-function LandmarkMesh() {
-  const { nodes, edges } = useMemo(() => buildMesh(), []);
-  const circleRefs = useRef([]);
-  const lineRefs = useRef([]);
-  const tiltRef = useRef(null);
-  const rafRef = useRef(null);
-
-  useEffect(() => {
-    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    let t = 0;
-
-    const paint = () => {
-      nodes.forEach((n, i) => {
-        const x = n.baseX + Math.sin(t * n.speed + n.phaseX) * n.amp;
-        const y = n.baseY + Math.cos(t * n.speed + n.phaseY) * n.amp;
-        n._x = x;
-        n._y = y;
-        const c = circleRefs.current[i];
-        if (c) {
-          c.setAttribute("cx", x.toFixed(2));
-          c.setAttribute("cy", y.toFixed(2));
-        }
-      });
-      edges.forEach(([a, b], i) => {
-        const l = lineRefs.current[i];
-        if (l) {
-          l.setAttribute("x1", nodes[a]._x.toFixed(2));
-          l.setAttribute("y1", nodes[a]._y.toFixed(2));
-          l.setAttribute("x2", nodes[b]._x.toFixed(2));
-          l.setAttribute("y2", nodes[b]._y.toFixed(2));
-        }
-      });
-    };
-
-    paint();
-    if (!reduced) {
-      const loop = () => {
-        t += 0.016;
-        paint();
-        rafRef.current = requestAnimationFrame(loop);
-      };
-      rafRef.current = requestAnimationFrame(loop);
-    }
-    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
-  }, [nodes, edges]);
-
-  const handleMove = (e) => {
-    const el = tiltRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `perspective(900px) rotateY(${px * 10}deg) rotateX(${-py * 10}deg)`;
-  };
-  const handleLeave = () => {
-    if (tiltRef.current) tiltRef.current.style.transform = "perspective(900px) rotateY(0deg) rotateX(0deg)";
-  };
-
-  return (
-    <div className="mesh-outer">
-      <div
-        ref={tiltRef}
-        className="mesh-tilt"
-        onMouseMove={handleMove}
-        onMouseLeave={handleLeave}
-      >
-        <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="mesh-svg" aria-hidden="true">
-          {edges.map((_, i) => (
-            <line
-              key={`e-${i}`}
-              ref={(el) => (lineRefs.current[i] = el)}
-              className="mesh-line"
-            />
-          ))}
-          {nodes.map((n, i) => (
-            <circle
-              key={`n-${i}`}
-              ref={(el) => (circleRefs.current[i] = el)}
-              r={n.isKey ? 3.1 : 1.5}
-              className={n.isKey ? "mesh-node mesh-node--key" : "mesh-node"}
-            />
-          ))}
-        </svg>
-      </div>
-      <p className="mesh-caption">Landmark mesh — the point-tracking behind Drape, drawn as a self-portrait</p>
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------------
-   SCROLL REVEAL
----------------------------------------------------------------------- */
-
-function useReveal() {
-  const rootRef = useRef(null);
-  useEffect(() => {
-    const els = rootRef.current?.querySelectorAll(".reveal") ?? [];
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("is-visible");
-        });
-      },
-      { threshold: 0.15 }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-  return rootRef;
-}
-
-/* ----------------------------------------------------------------------
-   TILT CARD (project cards)
----------------------------------------------------------------------- */
-
-function TiltCard({ children, className = "" }) {
-  const ref = useRef(null);
-  const onMove = (e) => {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `perspective(1000px) rotateY(${px * 6}deg) rotateX(${-py * 6}deg) translateY(-2px)`;
-  };
-  const onLeave = () => {
-    if (ref.current) ref.current.style.transform = "perspective(1000px) rotateY(0) rotateX(0) translateY(0)";
-  };
-  return (
-    <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave} className={`tilt-card ${className}`}>
-      {children}
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------------
-   MAIN APP
----------------------------------------------------------------------- */
+];
 
 export default function App() {
-  const rootRef = useReveal();
-
   return (
-    <div ref={rootRef} className="page">
+    <div className="portfolio-app">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
         :root {
-          --ink: #0e0b16;
-          --surface: #17131f;
-          --surface-2: #1e1828;
-          --text: #f3efea;
-          --muted: #948c9e;
-          --pink: #ff3e7f;
-          --mint: #7cffcb;
-          --line: rgba(243,239,234,0.09);
+          --bg-navy: #0b132b;
+          --bg-navy-light: #1c2541;
+          --bg-card: #151d36;
+          --accent-mint: #64dfdf;
+          --accent-cyan: #48cae4;
+          --text-main: #ffffff;
+          --text-muted: #8d99ae;
+          --border-color: rgba(100, 223, 223, 0.15);
         }
 
-        .page {
-          background: radial-gradient(ellipse 80% 60% at 15% -10%, rgba(255,62,127,0.10), transparent),
-                      radial-gradient(ellipse 70% 50% at 100% 0%, rgba(124,255,203,0.06), transparent),
-                      var(--ink);
-          color: var(--text);
-          font-family: 'Inter', sans-serif;
-          min-height: 100vh;
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        body {
+          background-color: var(--bg-navy);
+          color: var(--text-main);
+          font-family: 'Plus Jakarta Sans', sans-serif;
           overflow-x: hidden;
         }
 
-        .display { font-family: 'Fraunces', serif; }
-        .mono { font-family: 'Space Mono', monospace; letter-spacing: 0.04em; }
-
-        .eyebrow {
-          font-family: 'Space Mono', monospace;
-          font-size: 0.7rem;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: var(--muted);
+        a {
+          color: inherit;
+          text-decoration: none;
         }
-        .eyebrow::before { content: '— '; color: var(--pink); }
 
-        .container { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
-
-        /* NAV */
-        .nav {
-          position: sticky; top: 0; z-index: 40;
-          backdrop-filter: blur(10px);
-          background: rgba(14,11,22,0.65);
-          border-bottom: 1px solid var(--line);
+        .container {
+          max-width: 1140px;
+          margin: 0 auto;
+          padding: 0 2rem;
         }
-        .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; max-width: 1080px; margin: 0 auto; }
-        .nav-mark { font-family: 'Fraunces', serif; font-style: italic; font-size: 1.15rem; }
-        .nav-links { display: flex; gap: 1.5rem; }
-        .nav-links a { color: var(--muted); font-size: 0.85rem; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--text); }
 
-        /* HERO */
-        .hero {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 2.5rem;
-          padding: 3.5rem 0 4.5rem;
+        /* --- NAVBAR --- */
+        .navbar {
+          display: flex;
+          justify-content: space-between;
           align-items: center;
+          padding: 2rem 0;
         }
-        @media (min-width: 900px) {
-          .hero { grid-template-columns: 1.15fr 0.85fr; padding: 5rem 0 6rem; }
+        .logo {
+          font-weight: 700;
+          font-size: 1.4rem;
+          letter-spacing: -0.5px;
+        }
+        .logo span {
+          color: var(--accent-mint);
+        }
+        .nav-links {
+          display: flex;
+          gap: 2.5rem;
+          list-style: none;
+          font-size: 0.95rem;
+          color: var(--text-muted);
+        }
+        .nav-links a:hover {
+          color: var(--text-main);
         }
 
-        .status-pill {
-          display: inline-flex; align-items: center; gap: 0.5rem;
-          border: 1px solid rgba(255,62,127,0.35);
-          background: rgba(255,62,127,0.08);
-          color: var(--pink);
-          padding: 0.4rem 0.9rem;
-          border-radius: 999px;
-          font-family: 'Space Mono', monospace;
-          font-size: 0.7rem;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
+        /* --- HERO SECTION --- */
+        .hero {
+          position: relative;
+          padding: 6rem 0 8rem;
+          display: grid;
+          grid-template-columns: 1.2fr 0.8fr;
+          align-items: center;
+          gap: 2rem;
+        }
+        .hero-title {
+          font-size: 3.5rem;
+          font-weight: 700;
+          line-height: 1.15;
           margin-bottom: 1.5rem;
         }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 8px var(--pink); }
-
-        .hero h1 {
-          font-family: 'Fraunces', serif;
-          font-weight: 600;
-          font-size: clamp(2.6rem, 6vw, 4.6rem);
-          line-height: 0.98;
-          letter-spacing: -0.01em;
-          margin-bottom: 0.75rem;
+        .hero-title .highlight {
+          color: var(--accent-mint);
         }
-        .hero h1 em { color: var(--mint); font-style: italic; }
-
-        .hero-role {
-          font-family: 'Fraunces', serif;
-          font-style: italic;
-          font-size: 1.25rem;
-          color: var(--pink);
-          margin-bottom: 1.1rem;
+        .hero-subtitle {
+          color: var(--text-muted);
+          font-size: 1.05rem;
+          max-width: 480px;
+          margin-bottom: 2.5rem;
+          line-height: 1.6;
         }
-        .hero-bio { color: var(--muted); font-size: 1rem; line-height: 1.7; max-width: 34rem; margin-bottom: 2rem; }
-
-        .cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-        .btn {
-          display: inline-flex; align-items: center; gap: 0.5rem;
-          padding: 0.7rem 1.15rem;
-          border-radius: 10px;
-          font-size: 0.88rem;
+        .btn-outline {
+          display: inline-block;
+          padding: 0.8rem 1.8rem;
+          border: 1px solid var(--accent-mint);
+          color: var(--accent-mint);
+          border-radius: 6px;
           font-weight: 500;
-          transition: transform 0.15s ease, background 0.2s, border-color 0.2s;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
         }
-        .btn:hover { transform: translateY(-2px); }
-        .btn-primary { background: var(--pink); color: #16040c; }
-        .btn-primary:hover { background: #ff5c94; }
-        .btn-ghost { border: 1px solid var(--line); color: var(--text); background: var(--surface); }
-        .btn-ghost:hover { border-color: rgba(124,255,203,0.4); }
+        .btn-outline:hover {
+          background: rgba(100, 223, 223, 0.1);
+          transform: translateY(-2px);
+        }
 
-        /* MESH */
-        .mesh-outer { display: flex; flex-direction: column; align-items: center; }
-        .mesh-tilt { width: 100%; max-width: 300px; transition: transform 0.15s ease-out; }
-        .mesh-svg { width: 100%; height: auto; display: block; }
-        .mesh-node { fill: var(--mint); opacity: 0.85; }
-        .mesh-node--key { fill: var(--pink); filter: drop-shadow(0 0 4px rgba(255,62,127,0.7)); }
-        .mesh-line { stroke: rgba(124,255,203,0.28); stroke-width: 0.6; }
-        .mesh-caption { margin-top: 1rem; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.72rem; text-align: center; max-width: 22rem; line-height: 1.5; }
+        /* Particle Visual Graphic */
+        .particles-graphic {
+          width: 100%;
+          height: 320px;
+          position: relative;
+          background: radial-gradient(circle at center, rgba(100, 223, 223, 0.08) 0%, transparent 70%);
+        }
+        .particle-dots {
+          width: 100%;
+          height: 100%;
+          background-image: radial-gradient(var(--accent-mint) 1px, transparent 1px), radial-gradient(var(--accent-cyan) 1px, transparent 1px);
+          background-size: 30px 30px;
+          background-position: 0 0, 15px 15px;
+          opacity: 0.4;
+          border-radius: 50%;
+        }
 
-        /* SECTIONS */
-        section.block { padding: 4rem 0; border-top: 1px solid var(--line); }
-        .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2.25rem; flex-wrap: wrap; gap: 0.5rem; }
-        .section-title { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 600; }
+        /* --- SKILLS & TOOLS --- */
+        .skills-section {
+          padding: 6rem 0;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+        }
+        .section-title {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 1rem;
+        }
+        .section-title span {
+          color: var(--accent-mint);
+        }
+        .skills-desc {
+          color: var(--text-muted);
+          line-height: 1.7;
+          max-width: 400px;
+        }
+        .word-cloud {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem 1.5rem;
+          align-items: center;
+          justify-content: center;
+        }
+        .cloud-tag {
+          color: var(--text-muted);
+          font-weight: 500;
+          transition: color 0.3s;
+        }
+        .cloud-tag:nth-child(3n) { font-size: 1.4rem; color: #fff; }
+        .cloud-tag:nth-child(2n) { font-size: 1.1rem; color: var(--accent-cyan); }
+        .cloud-tag:nth-child(5n) { font-size: 1.6rem; color: var(--accent-mint); font-weight: 700; }
+        .cloud-tag:hover { color: var(--accent-mint); cursor: pointer; }
 
-        /* PROJECT CARDS */
-        .projects-grid { display: grid; gap: 1.5rem; }
-        .tilt-card {
-          background: var(--surface);
-          border: 1px solid var(--line);
-          border-radius: 18px;
+        /* --- SERVICES / FEATURED --- */
+        .feature-section {
+          padding: 6rem 0;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+        }
+        .mockup-container {
+          background: var(--bg-navy-light);
+          border: 1px solid var(--border-color);
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+          position: relative;
+        }
+        .mockup-screen {
+          background: #050a18;
+          border-radius: 8px;
+          height: 280px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .services-list {
+          display: flex;
+          flex-direction: column;
+          gap: 2.5rem;
+        }
+        .service-item h3 {
+          font-size: 1.25rem;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+        }
+        .service-item p {
+          color: var(--text-muted);
+          line-height: 1.6;
+          font-size: 0.95rem;
+        }
+
+        /* --- PROJECTS SECTION --- */
+        .projects-section {
+          padding: 6rem 0;
+          background: var(--bg-navy-light);
+          border-radius: 24px;
+          margin: 4rem 0;
+        }
+        .projects-inner {
+          display: grid;
+          grid-template-columns: 0.8fr 1.2fr;
+          gap: 3rem;
+          align-items: flex-start;
+        }
+        .proj-callout {
+          position: sticky;
+          top: 4rem;
+        }
+        .proj-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+        }
+        .project-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
           padding: 2rem;
-          transition: transform 0.1s ease-out, border-color 0.2s;
-          will-change: transform;
+          transition: transform 0.3s ease;
         }
-        .tilt-card:hover { border-color: rgba(255,62,127,0.3); }
-        .proj-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.35rem; }
-        .proj-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600; }
-        .proj-subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem; }
-        .proj-role { font-family: 'Space Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mint); border: 1px solid rgba(124,255,203,0.3); padding: 0.3rem 0.65rem; border-radius: 999px; white-space: nowrap; }
-        .proj-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.65; margin-bottom: 1.4rem; }
-        .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
-        .tag { font-family: 'Space Mono', monospace; font-size: 0.72rem; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); padding: 0.3rem 0.6rem; border-radius: 6px; }
-        .proj-links { display: flex; gap: 1.25rem; }
-        .proj-links a { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--mint); font-weight: 500; }
-        .proj-links a:hover { color: var(--pink); }
+        .project-card:hover {
+          transform: translateY(-4px);
+        }
+        .project-card h4 {
+          font-size: 1.4rem;
+          margin-bottom: 0.3rem;
+        }
+        .project-card .subtitle {
+          color: var(--accent-mint);
+          font-size: 0.85rem;
+          margin-bottom: 1rem;
+        }
+        .project-card p {
+          color: var(--text-muted);
+          font-size: 0.95rem;
+          line-height: 1.6;
+          margin-bottom: 1.5rem;
+        }
+        .tech-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-bottom: 1.5rem;
+        }
+        .tech-tag {
+          background: rgba(100, 223, 223, 0.08);
+          color: var(--accent-mint);
+          padding: 0.3rem 0.8rem;
+          border-radius: 20px;
+          font-size: 0.78rem;
+        }
+        .card-links {
+          display: flex;
+          gap: 1.2rem;
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: var(--accent-cyan);
+        }
 
-        /* CAPABILITIES */
-        .cap-grid { display: grid; gap: 2.5rem; }
-        @media (min-width: 800px) { .cap-grid { grid-template-columns: 1fr 1fr; } }
-        .cap-label { font-family: 'Space Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 1rem; }
-        .chip-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-        .chip { padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 0.85rem; }
-        .chip--process { border: 1px solid rgba(255,62,127,0.3); color: var(--text); background: rgba(255,62,127,0.05); }
-        .chip--tech { background: var(--surface-2); border: 1px solid var(--line); color: var(--mint); font-family: 'Space Mono', monospace; font-size: 0.78rem; }
+        /* --- FOOTER CTA --- */
+        .footer-cta {
+          padding: 8rem 0 6rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid var(--border-color);
+        }
+        .footer-cta h2 {
+          font-size: 2.8rem;
+          max-width: 450px;
+          line-height: 1.2;
+        }
+        .social-icons {
+          display: flex;
+          gap: 1.5rem;
+          margin-top: 2rem;
+        }
+        .social-icons a {
+          color: var(--text-muted);
+          transition: color 0.2s;
+        }
+        .social-icons a:hover {
+          color: var(--accent-mint);
+        }
 
-        /* EDUCATION */
-        .edu-card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 2rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap; }
-        .edu-degree { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.4rem; }
-        .edu-school { color: var(--muted); font-size: 0.9rem; }
-        .edu-years { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--pink); border: 1px solid rgba(255,62,127,0.3); padding: 0.35rem 0.8rem; border-radius: 999px; white-space: nowrap; }
-
-        /* FOOTER */
-        footer { border-top: 1px solid var(--line); padding: 3rem 0 2.5rem; text-align: center; }
-        footer .foot-title { font-family: 'Fraunces', serif; font-style: italic; font-size: 1.4rem; margin-bottom: 0.75rem; }
-        footer .foot-links { display: flex; justify-content: center; gap: 1.5rem; margin: 1.25rem 0; }
-        footer .foot-links a { color: var(--muted); }
-        footer .foot-links a:hover { color: var(--mint); }
-        footer .foot-note { color: var(--muted); font-size: 0.75rem; font-family: 'Space Mono', monospace; }
-
-        /* REVEAL */
-        .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
-        .reveal.is-visible { opacity: 1; transform: translateY(0); }
-
-        @media (prefers-reduced-motion: reduce) {
-          .reveal { transition: none; opacity: 1; transform: none; }
-          .tilt-card, .mesh-tilt { transition: none !important; }
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 900px) {
+          .hero, .skills-section, .feature-section, .projects-inner, .footer-cta {
+            grid-template-columns: 1fr;
+            flex-direction: column;
+            gap: 3rem;
+          }
+          .proj-callout {
+            position: static;
+          }
+          .hero-title {
+            font-size: 2.5rem;
+          }
         }
       `}</style>
 
-      {/* NAV */}
-      <nav className="nav">
-        <div className="nav-inner">
-          <span className="nav-mark">Amisa Dhakal</span>
-          <div className="nav-links">
-            <a href="#work">Work</a>
-            <a href="#capabilities">Capabilities</a>
-            <a href="#education">Education</a>
-            <a href={`mailto:${CONTACT.email}`}>Contact</a>
-          </div>
-        </div>
-      </nav>
-
       <div className="container">
+        {/* HEADER / NAV */}
+        <nav className="navbar">
+          <div className="logo">Amisa<span>.</span></div>
+          <ul className="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+
         {/* HERO */}
-        <header className="hero">
+        <header className="hero" id="about">
           <div>
-            <div className="status-pill">
-              <span className="status-dot" />
-              Open to Project Management &amp; Software Internships
-            </div>
-            <h1>
-              Amisa <em>Dhakal</em>
+            <h1 className="hero-title">
+              Hello,<br />
+              I am <span className="highlight">Amisa</span>,<br />
+              Full-Stack Developer
             </h1>
-            <p className="hero-role">Full-stack developer, working into computer vision</p>
-            <p className="hero-bio">
-              Computer Science and IT student at Asian School of Management and Technology,
-              building products end to end — from requirement docs to deployed code — with a
-              growing focus on interfaces powered by computer vision.
+            <p className="hero-subtitle">
+              Computer Science student building end-to-end digital experiences with a focus on web apps and computer vision.
             </p>
-            <div className="cta-row">
-              <a className="btn btn-primary" href={`mailto:${CONTACT.email}`}>
-                <Mail size={16} /> Email me
-              </a>
-              <a className="btn btn-ghost" href={CONTACT.github} target="_blank" rel="noreferrer">
-                <Github size={16} /> GitHub
-              </a>
-              <a className="btn btn-ghost" href={CONTACT.linkedin} target="_blank" rel="noreferrer">
-                <Linkedin size={16} /> LinkedIn
-              </a>
-            </div>
+            <a href={`mailto:${CONTACT.email}`} className="btn-outline">Let's get in touch!</a>
           </div>
-          <LandmarkMesh />
+          <div className="particles-graphic">
+            <div className="particle-dots"></div>
+          </div>
         </header>
 
-        {/* PROJECTS */}
-        <section id="work" className="block reveal">
-          <div className="section-head">
-            <h2 className="section-title">Selected work</h2>
-            <span className="eyebrow">Shipped &amp; in progress</span>
+        {/* SKILLS & TOOLS */}
+        <section className="skills-section">
+          <div>
+            <h2 className="section-title"><span>Skills</span> and tools</h2>
+            <p className="skills-desc">
+              Focusing on creating responsive, scalable interfaces and connecting them with modern backend API architectures.
+            </p>
           </div>
-          <div className="projects-grid">
-            {PROJECTS.map((p) => (
-              <TiltCard key={p.title}>
-                <div className="proj-top">
-                  <div>
-                    <div className="proj-title">{p.title}</div>
-                    <div className="proj-subtitle">{p.subtitle}</div>
-                  </div>
-                  <span className="proj-role">{p.role}</span>
-                </div>
-                <p className="proj-desc">{p.description}</p>
-                <div className="tag-row">
-                  {p.tech.map((t) => (
-                    <span key={t} className="tag">{t}</span>
-                  ))}
-                </div>
-                <div className="proj-links">
-                  {p.liveUrl && (
-                    <a href={p.liveUrl} target="_blank" rel="noreferrer">
-                      Live demo <ArrowUpRight size={14} />
-                    </a>
-                  )}
-                  <a href={p.codeUrl} target="_blank" rel="noreferrer">
-                    Code <ArrowUpRight size={14} />
-                  </a>
-                </div>
-              </TiltCard>
+          <div className="word-cloud">
+            {SKILLS_CLOUD.map((skill, i) => (
+              <span key={i} className="cloud-tag">{skill}</span>
             ))}
           </div>
         </section>
 
-        {/* CAPABILITIES */}
-        <section id="capabilities" className="block reveal">
-          <div className="section-head">
-            <h2 className="section-title">Capabilities</h2>
-          </div>
-          <div className="cap-grid">
-            <div>
-              <div className="cap-label">Process &amp; coordination</div>
-              <div className="chip-row">
-                {PROCESS_SKILLS.map((s) => (
-                  <span key={s} className="chip chip--process">{s}</span>
-                ))}
-              </div>
+        {/* SERVICES / CAPABILITIES */}
+        <section className="feature-section">
+          <div className="mockup-container">
+            <div className="mockup-screen">
+              <span style={{ color: "var(--accent-mint)", fontSize: "0.9rem" }}>Computer Vision & Web Apps</span>
             </div>
-            <div>
-              <div className="cap-label">Technical stack</div>
-              <div className="chip-row">
-                {TECH_SKILLS.map((s) => (
-                  <span key={s} className="chip chip--tech">{s}</span>
+          </div>
+          <div className="services-list">
+            {SERVICES.map((s, idx) => (
+              <div key={idx} className="service-item">
+                <h3>{s.title}</h3>
+                <p>{s.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* PROJECTS SHOWCASE */}
+        <section className="projects-section" id="projects">
+          <div className="container">
+            <div className="projects-inner">
+              <div className="proj-callout">
+                <h2 className="section-title">Take a look at what I've created</h2>
+                <p className="skills-desc" style={{ marginBottom: "2rem" }}>
+                  A selection of projects built end-to-end using modern frontend & backend technologies.
+                </p>
+                <a href={CONTACT.github} target="_blank" rel="noreferrer" className="btn-outline">
+                  View GitHub
+                </a>
+              </div>
+              <div className="proj-grid">
+                {PROJECTS.map((proj, idx) => (
+                  <div key={idx} className="project-card">
+                    <h4>{proj.title}</h4>
+                    <div className="subtitle">{proj.subtitle} — {proj.role}</div>
+                    <p>{proj.description}</p>
+                    <div className="tech-tags">
+                      {proj.tech.map((t, i) => (
+                        <span key={i} className="tech-tag">{t}</span>
+                      ))}
+                    </div>
+                    <div className="card-links">
+                      <a href={proj.codeUrl} target="_blank" rel="noreferrer">Code <ArrowUpRight size={14} /></a>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* EDUCATION */}
-        <section id="education" className="block reveal">
-          <div className="section-head">
-            <h2 className="section-title">Education</h2>
-          </div>
-          <div className="edu-card">
-            <div>
-              <div className="edu-degree">{EDUCATION.degree}</div>
-              <div className="edu-school">{EDUCATION.school}</div>
+        {/* FOOTER CTA */}
+        <footer className="footer-cta" id="contact">
+          <div>
+            <h2>Let's talk about your project</h2>
+            <div className="social-icons">
+              <a href={`mailto:${CONTACT.email}`}><Mail size={20} /></a>
+              <a href={CONTACT.github} target="_blank" rel="noreferrer"><Github size={20} /></a>
+              <a href={CONTACT.linkedin} target="_blank" rel="noreferrer"><Linkedin size={20} /></a>
             </div>
-            <span className="edu-years">{EDUCATION.years}</span>
           </div>
-        </section>
+          <div>
+            <a href={`mailto:${CONTACT.email}`} className="btn-outline">Contact me</a>
+          </div>
+        </footer>
       </div>
-
-      {/* FOOTER */}
-      <footer>
-        <div className="foot-title">Let's build something.</div>
-        <div className="foot-links">
-          <a href={`mailto:${CONTACT.email}`}><Mail size={18} /></a>
-          <a href={CONTACT.github} target="_blank" rel="noreferrer"><Github size={18} /></a>
-          <a href={CONTACT.linkedin} target="_blank" rel="noreferrer"><Linkedin size={18} /></a>
-        </div>
-        <div className="foot-note">Designed &amp; developed by Amisa Dhakal · {new Date().getFullYear()}</div>
-      </footer>
     </div>
   );
 }
