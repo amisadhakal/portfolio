@@ -49,7 +49,7 @@ const PROJECTS = [
     title: "Care Path",
     subtitle: "Healthcare Appointment Portal",
     role: "Frontend Developer",
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800",
+    image: "/img2.png",
     description:
       "A mobile-first appointment booking platform built around reusable React component architectures and robust REST API integrations.",
     tech: ["React.js", "JavaScript", "Tailwind CSS", "REST APIs"],
