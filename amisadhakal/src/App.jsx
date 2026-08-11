@@ -154,43 +154,49 @@ function Projects() {
         <p>Real-world projects focused on usability and technical depth.</p>
       </div>
 
-      <div className="projects-grid">
+      <div className="projects-showcase">
         {PROJECTS.map((project, idx) => (
-          <article key={idx} className="project-card">
-            {/* Cover Image Frame */}
+          <article key={idx} className="project-card-large">
+            {/* Big Featured Cover Frame */}
             {project.image && (
-              <div className="project-cover-frame">
+              <div className="project-cover-frame-large">
                 <img 
                   src={project.image} 
                   alt={`${project.title} cover`} 
-                  className="project-cover-img" 
+                  className="project-cover-img-large" 
                 />
+                <div className="cover-overlay" />
               </div>
             )}
 
-            {/* Card Content Wrapper */}
-            <div className="project-body">
-              <div className="project-meta">
-                <span className="role-tag">{project.role}</span>
-                <h3 className="project-title">{project.title}</h3>
-                <p className="project-subtitle">{project.subtitle}</p>
+            {/* Content Details below/beside the huge image */}
+            <div className="project-body-large">
+              <div className="project-header-row">
+                <div>
+                  <span className="role-tag">{project.role}</span>
+                  <h3 className="project-title-large">{project.title}</h3>
+                  <p className="project-subtitle-large">{project.subtitle}</p>
+                </div>
+                
+                <a 
+                  href={project.githubUrl} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="btn-secondary project-btn"
+                >
+                  View Code <ArrowUpRight size={16} />
+                </a>
               </div>
 
-              <p className="project-desc">{project.description}</p>
+              <p className="project-desc-large">{project.description}</p>
 
-              {/* Spaced Skill Tags */}
+              {/* Tech Stack Chips */}
               <div className="tech-stack">
                 {project.tech.map((t, i) => (
                   <span key={i} className="tech-badge">
                     {t}
                   </span>
                 ))}
-              </div>
-
-              <div className="project-footer">
-                <a href={project.githubUrl} target="_blank" rel="noreferrer" className="project-link">
-                  View Repository <ArrowUpRight size={16} />
-                </a>
               </div>
             </div>
           </article>
@@ -506,136 +512,128 @@ export default function App() {
         /* --- PROJECTS SECTION --- */
        /* --- PROJECT CARD IMAGE COVER STYLES --- */
 /* --- PROJECTS SECTION & GRID --- */
+/* --- LARGE PROJECT SHOWCASE --- */
 .projects-section {
   padding: 5rem 0;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 2rem;
-  align-items: stretch;
-}
-
-/* --- CARD CONTAINER FIXES --- */
-.project-card {
-  background-color: #12192c; /* Distinct card background */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  overflow: hidden; /* Clips image within rounded border */
+.projects-showcase {
   display: flex;
   flex-direction: column;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  gap: 4rem; /* Generous vertical spacing between giant project cards */
 }
 
-.project-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(100, 223, 223, 0.3);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-}
-
-/* --- COVER IMAGE --- */
-.project-cover-frame {
-  width: 100%;
-  height: 200px;
+/* Big Hero-style Project Card */
+.project-card-large {
+  background-color: #12192c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.project-card-large:hover {
+  transform: translateY(-6px);
+  border-color: rgba(100, 223, 223, 0.4);
+}
+
+/* BIG SCREENSHOT FRAME (Expands image height significantly) */
+.project-cover-frame-large {
+  width: 100%;
+  height: 480px; /* Big height for crisp visibility */
   position: relative;
-  background-color: #0a0f1d;
+  overflow: hidden;
+  background: #080d1a;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.project-cover-img {
+@media (max-width: 768px) {
+  .project-cover-frame-large {
+    height: 280px; /* Responsive fallback for smaller screens */
+  }
+}
+
+.project-cover-img-large {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
+  object-fit: cover; /* Fits image properly without stretching */
+  object-position: top center; /* Focuses on the top of the interface preview */
+  transition: transform 0.5s ease;
 }
 
-.project-card:hover .project-cover-img {
-  transform: scale(1.04);
+.project-card-large:hover .project-cover-img-large {
+  transform: scale(1.02); /* Slight high-end zoom effect */
 }
 
-/* --- CARD BODY & TYPOGRAPHY --- */
-.project-body {
-  padding: 1.75rem;
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(18, 25, 44, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* LARGE CARD CONTENT AREA */
+.project-body-large {
+  padding: 2.5rem;
+}
+
+.project-header-row {
   display: flex;
-  flex-direction: column;
-  flex-grow: 1;
   justify-content: space-between;
-}
-
-.role-tag {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64dfdf;
-  margin-bottom: 0.4rem;
-}
-
-.project-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #f8fafc;
-  margin-bottom: 0.2rem;
-}
-
-.project-subtitle {
-  color: #94a3b8;
-  font-size: 0.85rem;
+  align-items: flex-start;
+  gap: 1.5rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-.project-desc {
-  color: #cbd5e1;
-  font-size: 0.92rem;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
+.project-title-large {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
-/* --- TECH TAGS FIX (STOPS THEM FROM SQUISHING TOGETHER) --- */
+.project-subtitle-large {
+  color: #64dfdf;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.project-desc-large {
+  color: #94a3b8;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 850px;
+  margin-bottom: 1.75rem;
+}
+
+/* TECH BADGES */
 .tech-stack {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 0.5rem !important;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
 .tech-badge {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
-  font-size: 0.78rem;
-  font-weight: 500;
-  padding: 0.3rem 0.7rem;
-  border-radius: 6px;
+  background: rgba(100, 223, 223, 0.08);
+  border: 1px solid rgba(100, 223, 223, 0.2);
+  color: #64dfdf;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+}
+
+.project-btn {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 
-/* --- LINK CONTRAST FIX --- */
-.project-footer {
-  margin-top: auto;
-  padding-top: 0.5rem;
-}
 
-.project-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: #64dfdf !important; /* Forces visible bright teal link color */
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-
-.project-link:hover {
-  opacity: 0.8;
-  text-decoration: underline;
-}
 
         /* --- RESPONSIVE ADJUSTMENTS --- */
         @media (max-width: 850px) {
