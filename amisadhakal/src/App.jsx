@@ -11,7 +11,7 @@ const PROFILE = {
   title: "Full-Stack & Computer Vision Developer",
   bio: "CS & IT student at ASMT. I build high-performance web apps and explore practical applications in computer vision, taking ideas from concept to deployed code.",
   // Replace with your image link (e.g., "/my-photo.jpg" or a hosted URL)
-  photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800",
+  photoUrl: "/img1.png",
 };
 
 const CONTACT = {
@@ -92,7 +92,7 @@ function Hero() {
         <h1 className="hero-heading">
           Hello, <br />
           I am <span className="highlight-text">{PROFILE.name}</span>, <br />
-          Frontend & CV Engineer
+          Full stack developer
         </h1>
         <p className="hero-description">{PROFILE.bio}</p>
 
@@ -118,7 +118,7 @@ function Hero() {
             <Code2 size={18} />
             <div>
               <span className="tag-title">Full-Stack & Vision</span>
-              <span className="tag-sub">ASMT Student</span>
+              <span className="tag-sub">   tribhuvan university </span>
             </div>
           </div>
         </div>
